@@ -1,4 +1,4 @@
-﻿{
+{
   "$schema": "https://json.schemastore.org/launchsettings.json",
   "iisSettings": {
     "windowsAuthentication": false,
@@ -11,13 +11,14 @@
   "profiles": {
     "Knowledge_Graph_Analysis_BackEnd": {
       "commandName": "Project",
-      "dotnetRunMessages": true,
+      "workingDirectory": "D:\\code\\Knowledge-Graph-Analysis-BackEnd\\Knowledge-Graph-Analysis-BackEnd",
       "launchBrowser": true,
-      "launchUrl": "swagger",
-      "applicationUrl": "https://localhost:7162;http://localhost:5054",
+      "launchUrl": "swagger/index.html",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
-      }
+      },
+      "applicationUrl": "https://localhost:7162;http://localhost:5054",
+      "dotnetRunMessages": true
     },
     "IIS Express": {
       "commandName": "IISExpress",

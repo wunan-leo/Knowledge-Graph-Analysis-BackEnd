@@ -5,13 +5,13 @@ using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Knowledge_Graph_Analysis_BackEnd.Models
 {
-    public partial class knowledge_graphContext : DbContext
+    public partial class KnowledgeGraphContext : DbContext
     {
-        public knowledge_graphContext()
+        public KnowledgeGraphContext()
         {
         }
 
-        public knowledge_graphContext(DbContextOptions<knowledge_graphContext> options)
+        public KnowledgeGraphContext(DbContextOptions<KnowledgeGraphContext> options)
             : base(options)
         {
         }
