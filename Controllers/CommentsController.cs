@@ -15,7 +15,8 @@ namespace Knowledge_Graph_Analysis_BackEnd.Controllers
         {
             this.commentRepository = commentRepository;
         }
-        [HttpGet]
+        [HttpGet(Name = "GetComments")]
+        [ActionName("GetComments")]
         public async Task<ActionResult> GetComments()
         {
             try
@@ -29,7 +30,8 @@ namespace Knowledge_Graph_Analysis_BackEnd.Controllers
             }
         }
 
-        [HttpGet("{commentId:int}")]
+        [HttpGet("{commentId:int}", Name = "GetComment")]
+        [ActionName(nameof(GetComment))]
         public async Task<ActionResult<Comment>> GetComment(int commentId)
         {
             try
@@ -50,7 +52,7 @@ namespace Knowledge_Graph_Analysis_BackEnd.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Comment>> CreateComment(Comment comment)
+        public async Task<ActionResult<Comment>> CreateComment([FromBody]Comment comment)
         {
             try
             {
@@ -61,7 +63,8 @@ namespace Knowledge_Graph_Analysis_BackEnd.Controllers
 
                 var createdComment = await commentRepository.AddComment(comment);
 
-                return CreatedAtAction(nameof(GetComment), new {id = createdComment.CommentId }, createdComment);
+                var action = CreatedAtAction(nameof(GetComment), new { commentId = createdComment.CommentId }, createdComment);
+                return action;
             }
             catch(Exception)
             {
