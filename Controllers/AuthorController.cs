@@ -16,8 +16,8 @@ namespace Knowledge_Graph_Analysis_BackEnd.Controllers
         }
 
         [HttpGet]
-        [Route("/api/availableAuthors/{authorName}")]
-        public async Task<ActionResult> GetAvailableAuthors(string authorName)
+        [Route("/api/availableAuthors")]
+        public async Task<ActionResult> GetAvailableAuthors(string? authorName = "")
         {
             try
             {
@@ -31,12 +31,42 @@ namespace Knowledge_Graph_Analysis_BackEnd.Controllers
         }
 
         [HttpGet]
-        [Route("/api/areaedAuthors/{area}")]
+        [Route("/api/areaedAuthors")]
         public async Task<ActionResult> GetAreaedAuthors(string area)
         {
             try
             {
                 return Ok(await authorRepository.GetAreaedAuthors(area));
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    "Error retrieving data from the neo4j database.");
+            }
+        }
+
+        [HttpGet]
+        [Route("/api/CooperateAuthors")]
+        public async Task<ActionResult> GetCooperateAuthors(string authorIndex)
+        {
+            try
+            {
+                return Ok(await authorRepository.GetCooperateAuthors(authorIndex));
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    "Error retrieving data from the neo4j database.");
+            }
+        }
+
+        [HttpGet]
+        [Route("/api/availableAreas")]
+        public async Task<ActionResult> GetAvailableAreas(string? areaName = "")
+        {
+            try
+            {
+                return Ok(await authorRepository.GetAvailableAreas(areaName));
             }
             catch (Exception)
             {

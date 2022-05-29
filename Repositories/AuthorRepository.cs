@@ -1,4 +1,5 @@
-﻿using Knowledge_Graph_Analysis_BackEnd.IRepositories;
+﻿using Knowledge_Graph_Analysis_BackEnd.Dtos;
+using Knowledge_Graph_Analysis_BackEnd.IRepositories;
 using Knowledge_Graph_Analysis_BackEnd.Models;
 using Microsoft.AspNetCore.Mvc;
 using Neo4j.Driver;
@@ -15,17 +16,25 @@ namespace Knowledge_Graph_Analysis_BackEnd.Repositories
             _driver = driver;
         }
 
-        public async Task<List<string>> GetAvailableAuthors(string contains)
+        public async Task<List<AvailableAuthor>> GetAvailableAuthors(string contains)
         {
             IResultCursor cursor;
-            var authors = new List<string>();
+            var authors = new List<AvailableAuthor>();
             IAsyncSession session = _driver.AsyncSession();
             try
             {
                 var statement = new StringBuilder();
-                statement.Append($"MATCH (a:Author) where a.name starts with '{contains}' return a.name as name limit 10");
+                statement.Append($"MATCH (a:Author) with distinct(a.name) as name, a.index as authorIndex " +
+                    $"where a.name starts with '{contains}' return name,authorIndex limit 10");
                 cursor = await session.RunAsync(statement.ToString());
-                authors = await cursor.ToListAsync(record => record["name"].As<string>());
+                authors = await cursor.ToListAsync(record => {
+                    var author = new AvailableAuthor
+                    {
+                        authorIndex = record["authorIndex"].As<string>(),
+                        name = record["name"].As<string>()
+                    };
+                    return author;
+                });
             }
             finally
             {
@@ -33,16 +42,14 @@ namespace Knowledge_Graph_Analysis_BackEnd.Repositories
             }
             return authors;
         }
-        public async Task<List<Author>> GetAreaedAuthors(string area)
+        private async Task<List<Author>> GetAuthorsByStatement(string statement)
         {
             IResultCursor cursor;
             var authors = new List<Author>();
             IAsyncSession session = _driver.AsyncSession();
             try
-            {
-                var statement = new StringBuilder();
-                statement.Append($"MATCH p=(a:Author)-[r:Search]->(n:Area) where n.name = '{area}' RETURN a as author");
-                cursor = await session.RunAsync(statement.ToString());
+            {       
+                cursor = await session.RunAsync(statement);
                 authors = await cursor.ToListAsync(record =>
                 {
                     var node = record["author"].As<INode>();
@@ -58,13 +65,44 @@ namespace Knowledge_Graph_Analysis_BackEnd.Repositories
                     };
                     return author;
                 });
-                
             }
-            finally 
+            finally
             {
-                await session.CloseAsync(); 
+                await session.CloseAsync();
             }
             return authors;
+        }
+        public async Task<List<Author>> GetAreaedAuthors(string area)
+        {           
+            var statement = new StringBuilder();
+            statement.Append($"MATCH p=(a:Author)-[r:Search]->(n:Area) where n.name = '{area}' RETURN a as author");
+            return await GetAuthorsByStatement(statement.ToString());
+        }
+        public async Task<List<Author>> GetCooperateAuthors(string authorIndex)
+        {
+            var statement = new StringBuilder();
+            statement.Append($"MATCH (a:Author)-[r:Cooperate]->(b) where a.index = '{authorIndex}' RETURN b as author");
+            return await GetAuthorsByStatement(statement.ToString());
+        }
+
+        public async Task<List<string>> GetAvailableAreas(string contains)
+        {
+            IResultCursor cursor;
+            var areas = new List<string>();
+            IAsyncSession session = _driver.AsyncSession();
+            try
+            {
+                var statement = new StringBuilder();
+                statement.Append($"MATCH (a:Area) " +
+                    $"where a.name starts with '{contains}' return a.name as area limit 10");
+                cursor = await session.RunAsync(statement.ToString());
+                areas = await cursor.ToListAsync(record => record["area"].As<string>());
+            }
+            finally
+            {
+                await session.CloseAsync();
+            }
+            return areas;
         }
     }
 }
