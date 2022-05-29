@@ -104,5 +104,27 @@ namespace Knowledge_Graph_Analysis_BackEnd.Repositories
             }
             return areas;
         }
+
+        public async Task<int> GetCooperateCounts(string oneAuthorIndex, string anotherAuthorIndex)
+        {
+            IResultCursor cursor;
+            var result = 0;
+            IAsyncSession session = _driver.AsyncSession();
+            try
+            {
+                var statement = new StringBuilder();
+                statement.Append($"Match (a:Author)-[r:Cooperate]->(b:Author)" +
+                    $"where (a.index = '{oneAuthorIndex}' and b.index = '{anotherAuthorIndex}') or" +
+                    $" (a.index = '{anotherAuthorIndex}' and b.index = '{oneAuthorIndex}') return r.co_num as num");
+                cursor = await session.RunAsync(statement.ToString());
+                var results = await cursor.ToListAsync(record => record["num"].As<int>());
+                result = results.Count == 0? 0 : results[0];
+            }
+            finally
+            {
+                await session.CloseAsync();
+            }
+            return result;
+        }
     }
 }

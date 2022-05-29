@@ -17,7 +17,7 @@ namespace Knowledge_Graph_Analysis_BackEnd.Controllers
 
         [HttpGet]
         [Route("/api/availableAuthors")]
-        public async Task<ActionResult> GetAvailableAuthors(string? authorName = "")
+        public async Task<ActionResult> GetAvailableAuthors(string authorName = "")
         {
             try
             {
@@ -46,7 +46,7 @@ namespace Knowledge_Graph_Analysis_BackEnd.Controllers
         }
 
         [HttpGet]
-        [Route("/api/CooperateAuthors")]
+        [Route("/api/cooperateAuthors")]
         public async Task<ActionResult> GetCooperateAuthors(string authorIndex)
         {
             try
@@ -62,11 +62,26 @@ namespace Knowledge_Graph_Analysis_BackEnd.Controllers
 
         [HttpGet]
         [Route("/api/availableAreas")]
-        public async Task<ActionResult> GetAvailableAreas(string? areaName = "")
+        public async Task<ActionResult> GetAvailableAreas(string areaName = "")
         {
             try
             {
                 return Ok(await authorRepository.GetAvailableAreas(areaName));
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    "Error retrieving data from the neo4j database.");
+            }
+        }
+
+        [HttpGet]
+        [Route("/api/cooperateCounts")]
+        public async Task<ActionResult> GetCooperateCounts(string oneAuthorIndex, string anotherAuthorIndex)
+        {
+            try
+            {
+                return Ok(await authorRepository.GetCooperateCounts(oneAuthorIndex, anotherAuthorIndex));
             }
             catch (Exception)
             {

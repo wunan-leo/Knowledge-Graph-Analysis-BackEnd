@@ -12,5 +12,6 @@ namespace Knowledge_Graph_Analysis_BackEnd.IRepositories
         Task<List<Author>> GetCooperateAuthors(string authorIndex); 
 
         Task<List<string>> GetAvailableAreas(string contains);
+        Task<int> GetCooperateCounts(string oneAuthorIndex, string anotherAuthorIndex);
     }
-}
+}   

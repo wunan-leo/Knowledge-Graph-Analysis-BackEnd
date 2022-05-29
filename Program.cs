@@ -21,6 +21,7 @@ builder.Services.AddDbContext<KnowledgeGraphContext>(options =>
                     Microsoft.EntityFrameworkCore.ServerVersion.Parse("8.0.27-mysql")));
 
 //add neo4j driver.
+
 builder.Services.AddSingleton(GraphDatabase.Driver(builder.Configuration["KnowledgeGraph:Neo4jConnectionSettings:Server"],
     AuthTokens.Basic(builder.Configuration["KnowledgeGraph:Neo4jConnectionSettings:UserName"],
     builder.Configuration["KnowledgeGraph:Neo4jConnectionSettings:Password"])));
@@ -28,6 +29,16 @@ builder.Services.AddSingleton(GraphDatabase.Driver(builder.Configuration["Knowle
 // add Repository DI.
 builder.Services.AddScoped<ICommentRepository, CommentRepository>();
 builder.Services.AddScoped<IAuthorRepository, AuthorRepository>();
+builder.Services.AddScoped<IPaperRepository, PaperRepository>();
+
+//Cors
+builder.Services.AddCors(c =>
+{
+    c.AddPolicy("Cors", policy =>
+    {
+        policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+    });
+});
 
 var app = builder.Build();
 
@@ -38,7 +49,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
+else
+{
+    app.UseHttpsRedirection();
+}
+app.UseCors("Cors");
 
 app.UseHttpsRedirection();
 
