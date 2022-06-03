@@ -109,5 +109,35 @@ namespace Knowledge_Graph_Analysis_BackEnd.Controllers
                     "Error retrieving data from the neo4j database.");
             }
         }
+
+        [HttpGet]
+        [Route("/api/authorAreas")]
+        public async Task<ActionResult> GetAreasByAuthorIndex(string authorIndex)
+        {
+            try
+            {
+                return Ok(await authorRepository.GetAuthorAreas(authorIndex));
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    "Error retrieving data from the neo4j database.");
+            }
+        }
+
+        [HttpGet]
+        [Route("/api/authorDepartment")]
+        public async Task<ActionResult> GetDepartmentByAuthorIndex(string authorIndex)
+        {
+            try
+            {
+                return Ok(await authorRepository.GetAuthorDepartment(authorIndex));
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    "Error retrieving data from the neo4j database.");
+            }
+        }
     }
 }
