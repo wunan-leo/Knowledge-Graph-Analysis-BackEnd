@@ -1,4 +1,6 @@
 ﻿using Knowledge_Graph_Analysis_BackEnd.IRepositories;
+using Knowledge_Graph_Analysis_BackEnd.Services;
+using Knowledge_Graph_Analysis_BackEnd.Services.Implements;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,11 +11,14 @@ namespace Knowledge_Graph_Analysis_BackEnd.Controllers
     public class AuthorController : ControllerBase
     {
         private readonly IAuthorRepository authorRepository;
+        private readonly IAuthorService authorService;
 
         public AuthorController(IAuthorRepository authorRepository)
         {
             this.authorRepository = authorRepository;
+            this.authorService = new AuthorServiceImpl(this.authorRepository);
         }
+
 
         [HttpGet]
         [Route("/api/availableAuthors")]
@@ -82,6 +87,21 @@ namespace Knowledge_Graph_Analysis_BackEnd.Controllers
             try
             {
                 return Ok(await authorRepository.GetCooperateCounts(oneAuthorIndex, anotherAuthorIndex));
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    "Error retrieving data from the neo4j database.");
+            }
+        }
+
+        [HttpGet]
+        [Route("/api/briefAuthors")]
+        public async Task<ActionResult> GetBriefAuthorsByName(string authorName)
+        {
+            try
+            {
+                return Ok(await authorService.GetAuthorsBriefInfoByName(authorName));
             }
             catch (Exception)
             {

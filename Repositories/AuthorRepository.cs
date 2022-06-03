@@ -126,5 +126,53 @@ namespace Knowledge_Graph_Analysis_BackEnd.Repositories
             }
             return result;
         }
+
+        private async Task<List<string>> GetPropsByStatement(string statement, string resultProps)
+        {
+            var results = new List<string>();
+            IResultCursor cursor;
+            IAsyncSession session = _driver.AsyncSession();
+            try
+            {
+                cursor = await session.RunAsync(statement);
+                results = await cursor.ToListAsync(record => record[resultProps].As<string>());     
+            }
+            finally
+            {
+                await session.CloseAsync();
+            }
+            return results;
+        }
+        public async Task<List<string>> GetAuthorIndexByName(string name)
+        {
+            string returnProps = "result";
+            var statement = new StringBuilder();
+            statement.Append($"match (a:Author) where a.name = '{name}' return a.index as {returnProps}");
+            return await GetPropsByStatement(statement.ToString(), returnProps);
+        }
+
+        public async Task<List<string>> GetAuthorDepartment(string authorIndex)
+        {
+            string returnProps = "result";
+            var statement = new StringBuilder();
+            statement.Append($"MATCH (a: Author)-[:Work]->(c: Company) where a.index = '{authorIndex}' return c.name as {returnProps}");
+            return await GetPropsByStatement(statement.ToString(), returnProps);
+        }
+
+        public async Task<List<string>> GetAuthorPaperTitle(string authorIndex)
+        {
+            string returnProps = "result";
+            var statement = new StringBuilder();
+            statement.Append($"MATCH (a: Author)-[:Write]->(p: Paper) where a.index = '{authorIndex}' return p.paper_title as {returnProps}");
+            return await GetPropsByStatement(statement.ToString(), returnProps);
+        }
+
+        public async Task<List<string>> GetAuthorAreas(string authorIndex)
+        {
+            string returnProps = "result";
+            var statement = new StringBuilder();
+            statement.Append($"MATCH (a:Author)-[:Search]->(e:Area) where a.index = '{authorIndex}' return e.name as {returnProps}");
+            return await GetPropsByStatement(statement.ToString(), returnProps);
+        }
     }
 }
