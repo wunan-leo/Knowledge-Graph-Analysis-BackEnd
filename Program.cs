@@ -16,15 +16,16 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+
+
 builder.Services.AddDbContext<KnowledgeGraphContext>(options =>
                     options.UseMySql(builder.Configuration["KnowledgeGraph:MySQLConnectionString"], 
                     Microsoft.EntityFrameworkCore.ServerVersion.Parse("8.0.27-mysql")));
-
 //add neo4j driver.
-
 builder.Services.AddSingleton(GraphDatabase.Driver(builder.Configuration["KnowledgeGraph:Neo4jConnectionSettings:Server"],
     AuthTokens.Basic(builder.Configuration["KnowledgeGraph:Neo4jConnectionSettings:UserName"],
     builder.Configuration["KnowledgeGraph:Neo4jConnectionSettings:Password"])));
+
 
 // add Repository DI.
 builder.Services.AddScoped<ICommentRepository, CommentRepository>();
@@ -32,30 +33,26 @@ builder.Services.AddScoped<IAuthorRepository, AuthorRepository>();
 builder.Services.AddScoped<IPaperRepository, PaperRepository>();
 
 //Cors
-builder.Services.AddCors(c =>
-{
-    c.AddPolicy("Cors", policy =>
-    {
-        policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+
+string MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+builder.Services.AddCors(op => {
+    op.AddPolicy(MyAllowSpecificOrigins, set => {
+        set.SetIsOriginAllowed(origin => true)
+        .AllowAnyHeader()
+        .AllowAnyMethod()
+        .AllowCredentials();
     });
 });
+
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    // app.UseDeveloperExceptionPage();
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-else
-{
-    app.UseHttpsRedirection();
-}
-app.UseCors("Cors");
-
+app.UseSwagger();
+app.UseSwaggerUI();
 app.UseHttpsRedirection();
+
+app.UseCors(MyAllowSpecificOrigins);
 
 app.UseAuthorization();
 
