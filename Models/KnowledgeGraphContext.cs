@@ -48,6 +48,10 @@ namespace Knowledge_Graph_Analysis_BackEnd.Models
                 entity.Property(e => e.LastName)
                     .HasMaxLength(20)
                     .HasColumnName("last_name");
+
+                entity.Property(e => e.CommentTime)
+                    .HasMaxLength(100)
+                    .HasColumnName("comment_time");
             });
 
             OnModelCreatingPartial(modelBuilder);

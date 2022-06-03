@@ -9,5 +9,6 @@ namespace Knowledge_Graph_Analysis_BackEnd.Models
         public string FirstName { get; set; } = null!;
         public string LastName { get; set; } = null!;
         public string CommentContent { get; set; } = null!;
+        public string CommentTime { get; set; } = null!;
     }
 }

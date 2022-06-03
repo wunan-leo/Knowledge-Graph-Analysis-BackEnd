@@ -6,6 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>Knowledge_Graph_Analysis_BackEnd</RootNamespace>
     <UserSecretsId>131ef4a8-0914-4d76-83c6-8bea218ebea4</UserSecretsId>
+    <OutputType>WinExe</OutputType>
   </PropertyGroup>
 
   <ItemGroup>

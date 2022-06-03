@@ -35,6 +35,7 @@ namespace Knowledge_Graph_Analysis_BackEnd.Repositories
                 result.FirstName = comment.FirstName;
                 result.LastName = comment.LastName;
                 result.CommentContent = comment.CommentContent;
+                result.CommentTime = comment.CommentTime;
 
                 await _graphContext.SaveChangesAsync();
 
