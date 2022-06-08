@@ -174,5 +174,18 @@ namespace Knowledge_Graph_Analysis_BackEnd.Repositories
             statement.Append($"MATCH (a:Author)-[:Search]->(e:Area) where a.index = '{authorIndex}' return e.name as {returnProps}");
             return await GetPropsByStatement(statement.ToString(), returnProps);
         }
+
+        public async Task<string> GetAuthorNameByIndex(string authorIndex)
+        {
+            string returnProps = "result";
+            var statement = new StringBuilder();
+            statement.Append($"MATCH (a:Author) where a.index = '{authorIndex}' return a.name as {returnProps}");
+            var resultList = await GetPropsByStatement(statement.ToString(), returnProps);
+            if(resultList.Count != 0)
+            {
+                return resultList[0];
+            }
+            return "";
+        }
     }
 }

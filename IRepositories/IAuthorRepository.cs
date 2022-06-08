@@ -22,5 +22,7 @@ namespace Knowledge_Graph_Analysis_BackEnd.IRepositories
 
         Task<List<string>>GetAuthorAreas(string authorIndex);
 
+        Task<string>GetAuthorNameByIndex(string authorIndex);
+
     }
 }   
