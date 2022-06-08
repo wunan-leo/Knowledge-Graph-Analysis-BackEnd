@@ -43,7 +43,7 @@ namespace Knowledge_Graph_Analysis_BackEnd.Repositories
             }
             return null;
         }
-        public async void DeleteComment(int commentId)
+        public async Task<Comment?> DeleteComment(int commentId)
         {
             var result = await _graphContext.Comments
                 .FirstOrDefaultAsync(c => c.CommentId == commentId);
@@ -51,7 +51,9 @@ namespace Knowledge_Graph_Analysis_BackEnd.Repositories
             {
                 _graphContext.Comments.Remove(result);
                 await _graphContext.SaveChangesAsync();
+                return result;
             }
+            return null;
         }
 
     }

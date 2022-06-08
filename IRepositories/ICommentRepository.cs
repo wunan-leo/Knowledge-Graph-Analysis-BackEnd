@@ -8,7 +8,7 @@ namespace Knowledge_Graph_Analysis_BackEnd.Repositories
         Task<Comment?> GetComment(int commentId);
         Task<Comment> AddComment(Comment comment);
         Task<Comment?> UpdateComment(Comment comment);
-        void DeleteComment(int commentId);
+        Task<Comment?> DeleteComment(int commentId);
 
     }
 }

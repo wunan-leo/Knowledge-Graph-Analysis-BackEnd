@@ -73,5 +73,25 @@ namespace Knowledge_Graph_Analysis_BackEnd.Controllers
             }
         }
 
+        [HttpDelete("{commentId:int}")]
+        public async Task<ActionResult<Comment?>> DeleteComment(int commentId)
+        {
+            try
+            {
+                var comment = await commentRepository.GetComment(commentId);
+
+                if (comment == null)
+                {
+                    return NotFound($"Employee with Id = {commentId} not found");
+                }
+
+                return await commentRepository.DeleteComment(commentId);
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    "Error deleting data");
+            }
+        }
     }
 }

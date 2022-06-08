@@ -58,5 +58,20 @@ namespace Knowledge_Graph_Analysis_BackEnd.Controllers
                     "Error retrieving data from the neo4j database.");
             }
         }
+
+        [HttpGet]
+        [Route("/api/importantVenues")]
+        public async Task<ActionResult> GetImportantVenues(string area, int limit)
+        {
+            try
+            {
+                return Ok(await paperRepository.GetImportantVenue(area, limit));
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    "Error retrieving data from the neo4j database.");
+            }
+        }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Knowledge_Graph_Analysis_BackEnd.IRepositories;
+﻿using Knowledge_Graph_Analysis_BackEnd.Dtos;
+using Knowledge_Graph_Analysis_BackEnd.IRepositories;
 using Knowledge_Graph_Analysis_BackEnd.Models;
 using Neo4j.Driver;
 using System.Text;
@@ -62,6 +63,44 @@ namespace Knowledge_Graph_Analysis_BackEnd.Repositories
             statement.Append($"match(a:Author)-[:Write]->(p:Paper)<-[:Write]-(b:Author) " +
                 $"where a.index = '{oneAuthorIndex}' and b.index = '{anotherAuthorIndex}' return p as paper");
             return await GetPapersByStatement(statement.ToString());
+        }
+
+        public async Task<List<ImportantVenue>> GetImportantVenue(string area, int limit)
+        {
+            IResultCursor cursor;
+            var vunues = new List<ImportantVenue>();
+            IAsyncSession session = _driver.AsyncSession();
+            var statement = new StringBuilder();
+            statement.Append($"MATCH (a:Area)<-[:Search]-(au:Author)-[:Write]->(p:Paper)<-[r:Reference]-(:Paper) " +
+                $"where a.name='{area}' " +
+                $"return p.publication_venue as venueName, count(distinct(p)) as paperCount, count(distinct(r)) as referenceCount " +
+                $"order by referenceCount desc limit {limit}");
+            try
+            {
+                cursor = await session.RunAsync(statement.ToString());
+                vunues = await cursor.ToListAsync(record =>
+                {                
+                    var vunue = new ImportantVenue
+                    {
+                        venueName = record["venueName"].As<string>(),
+                        paperCount = record["paperCount"].As<int>(),
+                        referenceCount = record["referenceCount"].As<int>()
+                    };
+                    return vunue;
+                });
+                foreach(ImportantVenue vunue in vunues)
+                {
+                    var paperStatement = new StringBuilder();
+                    paperStatement.Append($"MATCH (a:Area)<-[:Search]-(au:Author)-[:Write]->(p:Paper) " +
+                        $"where a.name='{area}' and p.publication_venue='{vunue.venueName}' return distinct(p) as paper");
+                    vunue.papers = await GetPapersByStatement(paperStatement.ToString());
+                }
+            }
+            finally
+            {
+                await session.CloseAsync();
+            }
+            return vunues;
         }
     }
 }

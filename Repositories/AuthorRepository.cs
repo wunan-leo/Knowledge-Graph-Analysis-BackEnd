@@ -24,17 +24,21 @@ namespace Knowledge_Graph_Analysis_BackEnd.Repositories
             try
             {
                 var statement = new StringBuilder();
-                statement.Append($"MATCH (a:Author) with distinct(a.name) as name, a.index as authorIndex " +
-                    $"where a.name starts with '{contains}' return name,authorIndex limit 10");
+                statement.Append($"MATCH (a:Author)" +
+                    $"where a.name  starts with '{contains}' return distinct(a.name) as name limit 10");
                 cursor = await session.RunAsync(statement.ToString());
                 authors = await cursor.ToListAsync(record => {
                     var author = new AvailableAuthor
-                    {
-                        authorIndex = record["authorIndex"].As<string>(),
+                    {                       
                         name = record["name"].As<string>()
                     };
                     return author;
                 });
+                foreach (var author in authors)
+                {
+                    var result = await GetAuthorIndexByName(author.name);
+                    author.authorIndex = result[0];
+                }
             }
             finally
             {
