@@ -31,40 +31,12 @@ namespace Knowledge_Graph_Analysis_BackEnd.Services.Implements
             return authors;
         }
 
-        private async Task<List<Author>> GetImportantAuthorByArea(string area, string indicator, int limit)
+        public async Task<ImportantAuthorsDept> GetImportantAuthorAndDepartmentByArea(string area, string indicator, int authorLimit, int departmentLimit)
         {
-            List<Author> originalAuthors = await authorRepository.GetAreaedAuthors(area);
-            originalAuthors.Sort((left, right) =>
-            {
-                var leftProperty = left.GetType().GetProperty(indicator);
-                var rightProperty = right.GetType().GetProperty(indicator);
-                if (leftProperty == null || rightProperty == null)
-                {
-                    throw new Exception("please provide the true indicator of author.");
-                }
-
-                float leftValue = float.Parse(leftProperty.GetValue(left, null).ToString());
-                float rightValue = float.Parse(rightProperty.GetValue(right, null).ToString());
-                if(leftValue > rightValue)
-                {
-                    return 1;
-                }
-                else if(leftValue < rightValue)
-                {
-                    return -1;
-                }
-                else
-                {
-                    return 0;
-                }
-            
-            });
-            limit = Math.Min(limit, originalAuthors.Count);
-            return originalAuthors.GetRange(0, limit);
-        }
-        private async Task<List<ImportantDepartment>> GetImportantDepartmentByArea(string area, int limit)
-        {
-
+            var importAuthorsDept = new ImportantAuthorsDept();
+            importAuthorsDept.importAuthors = await authorRepository.GetImportantAuthorByArea(area, indicator, authorLimit);
+            importAuthorsDept.importantDepartments = await authorRepository.GetImportantDepartmentByArea(area, departmentLimit);
+            return importAuthorsDept;
         }
     }
 }

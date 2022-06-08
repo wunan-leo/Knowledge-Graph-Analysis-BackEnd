@@ -20,9 +20,12 @@ namespace Knowledge_Graph_Analysis_BackEnd.IRepositories
 
         Task<List<string>> GetAuthorPaperTitle(string authorIndex);
 
-        Task<List<string>>GetAuthorAreas(string authorIndex);
+        Task<List<string>> GetAuthorAreas(string authorIndex);
 
-        Task<string>GetAuthorNameByIndex(string authorIndex);
+        Task<string> GetAuthorNameByIndex(string authorIndex);
 
+        Task<List<Author>> GetImportantAuthorByArea(string area, string indicator, int limit);
+
+        Task<List<ImportantDepartment>> GetImportantDepartmentByArea(string area, int limit);
     }
 }   

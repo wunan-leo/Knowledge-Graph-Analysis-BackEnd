@@ -78,6 +78,13 @@ namespace Knowledge_Graph_Analysis_BackEnd.Repositories
             statement.Append($"MATCH p=(a:Author)-[r:Search]->(n:Area) where n.name = '{area}' RETURN a as author");
             return await GetAuthorsByStatement(statement.ToString());
         }
+        public async Task<List<Author>> GetImportantAuthorByArea(string area, string indicator, int limit)
+        {
+            var statement = new StringBuilder();
+            statement.Append($"MATCH (a:Author)-[:Search]->(ar:Area) where ar.name='{area}' " +
+                $"return a as author order by toFloat(a.{indicator}) desc limit {limit.ToString()}");
+            return await GetAuthorsByStatement(statement.ToString());
+        }
         public async Task<List<Author>> GetCooperateAuthors(string authorIndex)
         {
             var statement = new StringBuilder();
@@ -186,6 +193,48 @@ namespace Knowledge_Graph_Analysis_BackEnd.Repositories
                 return resultList[0];
             }
             return "";
+        }
+        
+        public async Task<List<ImportantDepartment>> GetImportantDepartmentByArea(string area, int limit)
+        {
+            IResultCursor cursor;
+            var importantDepartments = new List<ImportantDepartment>();
+            IAsyncSession session = _driver.AsyncSession();
+            var statement = new StringBuilder();
+            statement.Append($"MATCH(a: Area)<-[:Search]-(au: Author)-[:Work]->(c: Company) " +
+                $"where a.name = '{area}' " +
+                $"return c.name as deptName, AVG(toFloat(au.pi)) as avgPi, " +
+                $"AVG(toFloat(au.upi)) as avgUpi, AVG(toFloat(au.hi)) as avgHi, count(*) as authorNum " +
+                $"order by avgPi desc limit {limit}");
+            try
+            {
+              
+                cursor = await session.RunAsync(statement.ToString());
+                importantDepartments = await cursor.ToListAsync(record =>
+                {
+                    var importantDept = new ImportantDepartment
+                    {
+                        departmentName = record["deptName"].As<string>(),
+                        avgHi = record["avgHi"].As<float>(),
+                        avgPi = record["avgPi"].As<float>(),
+                        avgUpi = record["avgUpi"].As<float>(),
+                        authorCount = record["authorNum"].As<int>()
+                    };                   
+                    return importantDept;
+                });
+                foreach(var importantDepartment in importantDepartments)
+                {
+                    var authorStatment = new StringBuilder();
+                    authorStatment.Append($"MATCH (a :Area)<-[:Search]-(au :Author)-[:Work]->(c :Company) " +
+                        $"where a.name = '{area}' and c.name = '{importantDepartment.departmentName}' return au as author");
+                    importantDepartment.authors = await GetAuthorsByStatement(authorStatment.ToString());
+                }
+            }
+            finally
+            {
+                await session.CloseAsync();
+            }
+            return importantDepartments;
         }
     }
 }
