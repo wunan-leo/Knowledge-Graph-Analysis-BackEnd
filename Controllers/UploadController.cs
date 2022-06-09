@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Knowledge_Graph_Analysis_BackEnd.IRepositories;
+using Knowledge_Graph_Analysis_BackEnd.Services;
+using Knowledge_Graph_Analysis_BackEnd.Services.Implements;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Knowledge_Graph_Analysis_BackEnd.Controllers
@@ -7,26 +10,23 @@ namespace Knowledge_Graph_Analysis_BackEnd.Controllers
     [ApiController]
     public class UploadController : ControllerBase
     {
-        [HttpPost]
-        public async Task<IActionResult> UploadFile([FromForm] IFormFile file)
+        private IUploadService uploadService;
+
+        public UploadController(IUploadRepository uploadRepository)
         {
-            if (file == null)
+            this.uploadService = new UploadServiceImpl(uploadRepository);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UploadFile([FromForm] IFormFile file, string tableName)
+        {
+            var uploadResult = await uploadService.uploadFile(file);
+            if(uploadResult.flag == false)
             {
-                return BadRequest("There isn't a file.");
+                return BadRequest(new {msg = uploadResult.msg});
             }
-            string[] limitFileType = { ".csv" };
-            string currentFileExtension = Path.GetExtension(file.FileName).ToLower();
-            if (!limitFileType.Contains(currentFileExtension))
-            {
-                return new JsonResult(new { code = "-1", msg = "File must be csv file." });
-            }
-            var filePath = Path.Combine("imports/", file.FileName);
-            var path = Path.Combine(Directory.GetCurrentDirectory(), filePath);
-            using (var stream = new FileStream(path, FileMode.Create))
-            {
-                await file.CopyToAsync(stream);
-            }
-            return Ok(new { size = file.Length, msg = "successfully upload the file!" });
+            
+            return Ok(await uploadService.MergeTable(file.FileName, tableName));
         }
     }
 }

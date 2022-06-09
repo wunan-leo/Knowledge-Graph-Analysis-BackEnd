@@ -33,6 +33,7 @@ builder.Services.AddSingleton(GraphDatabase.Driver(builder.Configuration["Knowle
 builder.Services.AddScoped<ICommentRepository, CommentRepository>();
 builder.Services.AddScoped<IAuthorRepository, AuthorRepository>();
 builder.Services.AddScoped<IPaperRepository, PaperRepository>();
+builder.Services.AddScoped<IUploadRepository, UploadRepository>();
 
 //Cors
 
