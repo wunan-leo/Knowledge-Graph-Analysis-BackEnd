@@ -2,6 +2,8 @@
 using Knowledge_Graph_Analysis_BackEnd.IRepositories;
 using Knowledge_Graph_Analysis_BackEnd.Models;
 using Knowledge_Graph_Analysis_BackEnd.Repositories;
+using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
 using Neo4j.Driver;
 
@@ -44,6 +46,16 @@ builder.Services.AddCors(op => {
     });
 });
 
+// max upload file size.
+builder.Services.Configure<FormOptions>(x =>
+{
+    x.MultipartBoundaryLengthLimit = 1024 * 1024 * 1024;
+    x.ValueCountLimit = int.MaxValue;
+});
+builder.Services.Configure<KestrelServerOptions>(options =>
+{
+    options.Limits.MaxRequestBodySize = 1024 * 1024 * 1024;
+});
 
 var app = builder.Build();
 
