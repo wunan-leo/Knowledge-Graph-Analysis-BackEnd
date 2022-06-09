@@ -45,7 +45,7 @@ namespace Knowledge_Graph_Analysis_BackEnd.Repositories
         public async Task<List<Paper>> GetAvailablePapers(string contains, int page, int pageSize)
         {
             var statement = new StringBuilder();
-            statement.Append($"MATCH (p:Paper) where p.paper_title Contains '{contains}' " +
+            statement.Append($"MATCH (p:Paper) where p.paper_title Contains \"{contains}\" " +
                 $"return p as paper skip {page * pageSize} limit {pageSize}");
             return await GetPapersByStatement(statement.ToString());
         }
@@ -53,7 +53,7 @@ namespace Knowledge_Graph_Analysis_BackEnd.Repositories
         public async Task<List<Paper>> GetWrittenPapers(string authorIndex)
         {
             var statement = new StringBuilder();
-            statement.Append($"MATCH (a:Author)-[w:Write]->(p:Paper) where a.index = '{authorIndex}' return p as paper");
+            statement.Append($"MATCH (a:Author)-[w:Write]->(p:Paper) where a.index = \"{authorIndex}\" return p as paper");
             return await GetPapersByStatement(statement.ToString());
         }
 
@@ -61,7 +61,7 @@ namespace Knowledge_Graph_Analysis_BackEnd.Repositories
         {
             var statement = new StringBuilder();
             statement.Append($"match(a:Author)-[:Write]->(p:Paper)<-[:Write]-(b:Author) " +
-                $"where a.index = '{oneAuthorIndex}' and b.index = '{anotherAuthorIndex}' return p as paper");
+                $"where a.index = \"{oneAuthorIndex}\" and b.index = \"{anotherAuthorIndex}\" return p as paper");
             return await GetPapersByStatement(statement.ToString());
         }
 
@@ -72,7 +72,7 @@ namespace Knowledge_Graph_Analysis_BackEnd.Repositories
             IAsyncSession session = _driver.AsyncSession();
             var statement = new StringBuilder();
             statement.Append($"MATCH (a:Area)<-[:Search]-(au:Author)-[:Write]->(p:Paper)<-[r:Reference]-(:Paper) " +
-                $"where a.name='{area}' " +
+                $"where a.name=\"{area}\" " +
                 $"return p.publication_venue as venueName, count(distinct(p)) as paperCount, count(distinct(r)) as referenceCount " +
                 $"order by referenceCount desc limit {limit}");
             try
@@ -92,7 +92,7 @@ namespace Knowledge_Graph_Analysis_BackEnd.Repositories
                 {
                     var paperStatement = new StringBuilder();
                     paperStatement.Append($"MATCH (a:Area)<-[:Search]-(au:Author)-[:Write]->(p:Paper) " +
-                        $"where a.name='{area}' and p.publication_venue='{vunue.venueName}' return distinct(p) as paper");
+                        $"where a.name=\"{area}\" and p.publication_venue=\"{vunue.venueName}\" return distinct(p) as paper");
                     vunue.papers = await GetPapersByStatement(paperStatement.ToString());
                 }
             }

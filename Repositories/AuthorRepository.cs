@@ -25,7 +25,7 @@ namespace Knowledge_Graph_Analysis_BackEnd.Repositories
             {
                 var statement = new StringBuilder();
                 statement.Append($"MATCH (a:Author)" +
-                    $"where a.name  starts with '{contains}' return distinct(a.name) as name limit 10");
+                    $"where a.name  starts with \"{contains}\" return distinct(a.name) as name limit 10");
                 cursor = await session.RunAsync(statement.ToString());
                 authors = await cursor.ToListAsync(record => {
                     var author = new AvailableAuthor
@@ -79,20 +79,20 @@ namespace Knowledge_Graph_Analysis_BackEnd.Repositories
         public async Task<List<Author>> GetAreaedAuthors(string area)
         {           
             var statement = new StringBuilder();
-            statement.Append($"MATCH p=(a:Author)-[r:Search]->(n:Area) where n.name = '{area}' RETURN a as author");
+            statement.Append($"MATCH p=(a:Author)-[r:Search]->(n:Area) where n.name = \"{area}\" RETURN a as author");
             return await GetAuthorsByStatement(statement.ToString());
         }
         public async Task<List<Author>> GetImportantAuthorByArea(string area, string indicator, int limit)
         {
             var statement = new StringBuilder();
-            statement.Append($"MATCH (a:Author)-[:Search]->(ar:Area) where ar.name='{area}' " +
+            statement.Append($"MATCH (a:Author)-[:Search]->(ar:Area) where ar.name=\"{area}\" " +
                 $"return a as author order by toFloat(a.{indicator}) desc limit {limit.ToString()}");
             return await GetAuthorsByStatement(statement.ToString());
         }
         public async Task<List<Author>> GetCooperateAuthors(string authorIndex)
         {
             var statement = new StringBuilder();
-            statement.Append($"MATCH (a:Author)-[r:Cooperate]->(b) where a.index = '{authorIndex}' RETURN b as author");
+            statement.Append($"MATCH (a:Author)-[r:Cooperate]->(b) where a.index = \"{authorIndex}\" RETURN b as author");
             return await GetAuthorsByStatement(statement.ToString());
         }
 
@@ -105,7 +105,7 @@ namespace Knowledge_Graph_Analysis_BackEnd.Repositories
             {
                 var statement = new StringBuilder();
                 statement.Append($"MATCH (a:Area) " +
-                    $"where a.name starts with '{contains}' return a.name as area limit 10");
+                    $"where a.name starts with \"{contains}\" return a.name as area limit 10");
                 cursor = await session.RunAsync(statement.ToString());
                 areas = await cursor.ToListAsync(record => record["area"].As<string>());
             }
@@ -125,8 +125,8 @@ namespace Knowledge_Graph_Analysis_BackEnd.Repositories
             {
                 var statement = new StringBuilder();
                 statement.Append($"Match (a:Author)-[r:Cooperate]->(b:Author)" +
-                    $"where (a.index = '{oneAuthorIndex}' and b.index = '{anotherAuthorIndex}') or" +
-                    $" (a.index = '{anotherAuthorIndex}' and b.index = '{oneAuthorIndex}') return r.co_num as num");
+                    $"where (a.index = \"{oneAuthorIndex}\" and b.index = \"{anotherAuthorIndex}\") or" +
+                    $" (a.index = \"{anotherAuthorIndex}\" and b.index = \"{oneAuthorIndex}\") return r.co_num as num");
                 cursor = await session.RunAsync(statement.ToString());
                 var results = await cursor.ToListAsync(record => record["num"].As<int>());
                 result = results.Count == 0? 0 : results[0];
@@ -158,7 +158,7 @@ namespace Knowledge_Graph_Analysis_BackEnd.Repositories
         {
             string returnProps = "result";
             var statement = new StringBuilder();
-            statement.Append($"match (a:Author) where a.name = '{name}' return a.index as {returnProps}");
+            statement.Append($"match (a:Author) where a.name = \"{name}\" return a.index as {returnProps}");
             return await GetPropsByStatement(statement.ToString(), returnProps);
         }
 
@@ -166,7 +166,7 @@ namespace Knowledge_Graph_Analysis_BackEnd.Repositories
         {
             string returnProps = "result";
             var statement = new StringBuilder();
-            statement.Append($"MATCH (a: Author)-[:Work]->(c: Company) where a.index = '{authorIndex}' return c.name as {returnProps}");
+            statement.Append($"MATCH (a: Author)-[:Work]->(c: Company) where a.index = \"{authorIndex}\" return c.name as {returnProps}");
             return await GetPropsByStatement(statement.ToString(), returnProps);
         }
 
@@ -174,7 +174,7 @@ namespace Knowledge_Graph_Analysis_BackEnd.Repositories
         {
             string returnProps = "result";
             var statement = new StringBuilder();
-            statement.Append($"MATCH (a: Author)-[:Write]->(p: Paper) where a.index = '{authorIndex}' return p.paper_title as {returnProps}");
+            statement.Append($"MATCH (a: Author)-[:Write]->(p: Paper) where a.index = \"{authorIndex}\" return p.paper_title as {returnProps}");
             return await GetPropsByStatement(statement.ToString(), returnProps);
         }
 
@@ -182,7 +182,7 @@ namespace Knowledge_Graph_Analysis_BackEnd.Repositories
         {
             string returnProps = "result";
             var statement = new StringBuilder();
-            statement.Append($"MATCH (a:Author)-[:Search]->(e:Area) where a.index = '{authorIndex}' return e.name as {returnProps}");
+            statement.Append($"MATCH (a:Author)-[:Search]->(e:Area) where a.index = \"{authorIndex}\" return e.name as {returnProps}");
             return await GetPropsByStatement(statement.ToString(), returnProps);
         }
 
@@ -190,7 +190,7 @@ namespace Knowledge_Graph_Analysis_BackEnd.Repositories
         {
             string returnProps = "result";
             var statement = new StringBuilder();
-            statement.Append($"MATCH (a:Author) where a.index = '{authorIndex}' return a.name as {returnProps}");
+            statement.Append($"MATCH (a:Author) where a.index = \"{authorIndex}\" return a.name as {returnProps}");
             var resultList = await GetPropsByStatement(statement.ToString(), returnProps);
             if(resultList.Count != 0)
             {
@@ -206,7 +206,7 @@ namespace Knowledge_Graph_Analysis_BackEnd.Repositories
             IAsyncSession session = _driver.AsyncSession();
             var statement = new StringBuilder();
             statement.Append($"MATCH(a: Area)<-[:Search]-(au: Author)-[:Work]->(c: Company) " +
-                $"where a.name = '{area}' " +
+                $"where a.name = \"{area}\" " +
                 $"return c.name as deptName, AVG(toFloat(au.pi)) as avgPi, " +
                 $"AVG(toFloat(au.upi)) as avgUpi, AVG(toFloat(au.hi)) as avgHi, count(*) as authorNum " +
                 $"order by avgPi desc limit {limit}");
