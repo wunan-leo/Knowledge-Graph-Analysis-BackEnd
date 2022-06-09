@@ -36,7 +36,7 @@ namespace Knowledge_Graph_Analysis_BackEnd.Repositories
             statement.Append($"using periodic commit 5000 " +
                 $"LOAD CSV WITH HEADERS FROM \"file:///{fileName}\" as line" +
                 " MERGE(p: Author{ index: line['index'],name: line['name']," +
-                "pc: line['pc'],cn: line['cn'],hi: line['hi'],pi: line['pi'],upi: line['upi']}");
+                "pc: line['pc'],cn: line['cn'],hi: line['hi'],pi: line['pi'],upi: line['upi']})");
             var count = await UploadDataByStatement(statement.ToString());
             return count;
         }
