@@ -120,7 +120,7 @@ namespace Knowledge_Graph_Analysis_BackEnd.Controllers
                 }
                 else
                 {
-                    return Ok(JsonConvert.DeserializeObject<BriefAuthor>(result));
+                    return Ok(JsonConvert.DeserializeObject<List<BriefAuthor>>(result));
                 }
             }
             catch (Exception)
