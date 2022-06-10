@@ -14,6 +14,14 @@ namespace Knowledge_Graph_Analysis_BackEnd.Repositories
             _driver = driver;
         }
 
+        public async Task<Paper?> GetPaperByIndex(string paperIndex)
+        {
+            var statement = new StringBuilder();
+            statement.Append($"MATCH (p:Paper) where p.index=\"{paperIndex}\" return p as paper");
+            var result = await GetPapersByStatement(statement.ToString());
+            return result.Count > 0 ? result[0] : null;
+        }
+
         private async Task<List<Paper>> GetPapersByStatement(string statement)
         {
             IResultCursor cursor;

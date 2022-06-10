@@ -11,5 +11,7 @@ namespace Knowledge_Graph_Analysis_BackEnd.IRepositories
         Task<List<Paper>> GetCooperatePapers(string oneAuthorIndex, string anotherAuthorIndex);
 
         Task<List<ImportantVenue>> GetImportantVenue(string area, int limit);
+
+        Task<Paper?> GetPaperByIndex(string paperIndex);
     }
 }

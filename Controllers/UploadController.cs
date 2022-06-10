@@ -18,7 +18,7 @@ namespace Knowledge_Graph_Analysis_BackEnd.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> UploadFile([FromForm] IFormFile file, string tableName)
+        public async Task<IActionResult> UploadFile([FromForm] IFormFile file, string tableName, string method)
         {
             var uploadResult = await uploadService.uploadFile(file);
             if(uploadResult.flag == false)
@@ -26,7 +26,7 @@ namespace Knowledge_Graph_Analysis_BackEnd.Controllers
                 return BadRequest(new {msg = uploadResult.msg});
             }
             
-            return Ok(await uploadService.MergeTable(file.FileName, tableName));
+            return Ok(await uploadService.MergeTable(file.FileName, tableName, method));
         }
     }
 }

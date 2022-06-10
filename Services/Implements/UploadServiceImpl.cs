@@ -35,55 +35,55 @@ namespace Knowledge_Graph_Analysis_BackEnd.Services.Implements
             }
             return new UploadReply { flag = true, msg = "successfully upload the file!" };
         }
-        public async Task<object> MergeTable(string fileName, string tableName)
+        public async Task<object> MergeTable(string fileName, string tableName, string method)
         {
             if(tableName == "Author")
             {
-                int count = await uploadRepository.UploadAuthor(fileName);
+                int count = await uploadRepository.UploadAuthor(fileName, method);
                 return new { flag = true, msg = "sucessfully insert the author in to neo4j.", count = count };
             }
             else if(tableName == "Paper")
             {
-                int count = await uploadRepository.UploadPaper(fileName);
+                int count = await uploadRepository.UploadPaper(fileName, method);
                 return new { flag = true, msg = "sucessfully insert the paper in to neo4j.", count = count };
             }
             else if(tableName == "Company")
             {
-                int count = await uploadRepository.UploadCompany(fileName);
+                int count = await uploadRepository.UploadCompany(fileName, method);
                 return new { flag = true, msg = "sucessfully insert the company in to neo4j.", count = count };
             }
             else if(tableName == "Area")
             {
-                int count = await uploadRepository.UploadArea(fileName);
+                int count = await uploadRepository.UploadArea(fileName, method);
                 return new { flag = true, msg = "sucessfully insert the area in to neo4j.", count = count };
             }
             else if(tableName == "Author-Paper")
             {
-                int count = await uploadRepository.UploadAuthorPaper(fileName);
+                int count = await uploadRepository.UploadAuthorPaper(fileName, method);
                 return new { flag = true, msg = "sucessfully insert the author-paper in to neo4j.", count = count };
             }
             else if(tableName == "Paper-Reference")
             {
-                int count = await uploadRepository.UploadPaperReference(fileName);
+                int count = await uploadRepository.UploadPaperReference(fileName, method);
                 return new { flag = true, msg = "sucessfully insert the paper-reference in to neo4j.", count = count };
             }
             else if(tableName == "Author-Cooperate")
             {
-                int count = await uploadRepository.UploadAuthorCooperate(fileName);
+                int count = await uploadRepository.UploadAuthorCooperate(fileName, method);
                 return new { flag = true, msg = "sucessfully insert the author-cooperate in to neo4j.", count = count };
             }
             else if(tableName == "Author-Company")
             {
-                int count = await uploadRepository.UploadAuthorCompany(fileName);
+                int count = await uploadRepository.UploadAuthorCompany(fileName, method);
                 return new { flag = true, msg = "sucessfully insert the author-company in to neo4j.", count = count };
             }
             else if(tableName == "Paper-Company"){
-                int count = await uploadRepository.UploadPaperCompany(fileName);
+                int count = await uploadRepository.UploadPaperCompany(fileName, method);
                 return new { flag = true, msg = "sucessfully insert the paper-company in to neo4j.", count = count };
             }
             else if(tableName == "Author-Area")
             {
-                int count = await uploadRepository.UploadAuthorArea(fileName);
+                int count = await uploadRepository.UploadAuthorArea(fileName, method);
                 return new { flag = true, msg = "sucessfully insert the author-area in to neo4j.", count = count };
             }
             return new {flag = false, msg = "fail to insert the data in to neo4j.", count = 0};

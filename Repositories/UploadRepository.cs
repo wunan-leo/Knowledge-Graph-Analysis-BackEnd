@@ -30,107 +30,117 @@ namespace Knowledge_Graph_Analysis_BackEnd.Repositories
             return lineCount;
         }
 
-        public async Task<int> UploadAuthor(string fileName)
+        public async Task<int> UploadAuthor(string fileName, string method)
         {
             var statement = new StringBuilder();
             statement.Append($"using periodic commit 5000 " +
                 $"LOAD CSV WITH HEADERS FROM \"file:///{fileName}\" as line" +
-                " MERGE(p: Author{ index: line['index'],name: line['name']," +
+                $" {method}" +
+                "(p: Author{ index: line['index'],name: line['name']," +
                 "pc: line['pc'],cn: line['cn'],hi: line['hi'],pi: line['pi'],upi: line['upi']})");
             var count = await UploadDataByStatement(statement.ToString());
             return count;
         }
 
-        public async Task<int> UploadPaper(string fileName)
+        public async Task<int> UploadPaper(string fileName, string method)
         {
             var statement = new StringBuilder();
             statement.Append($"using periodic commit 5000 " +
                 $"LOAD CSV WITH HEADERS FROM \"file:///{fileName}\" as line" +
-                " MERGE(p: Paper{ index: line['index'], paper_title: line['paper_title'], year: line['year']," +
+                $" {method}" +
+                "(p: Paper{ index: line['index'], paper_title: line['paper_title'], year: line['year']," +
                 " publication_venue: line['publication_venue'], abstract: line['abstract']})");
             var count = await UploadDataByStatement(statement.ToString());
             return count;
         }
 
-        public async Task<int> UploadCompany(string fileName)
+        public async Task<int> UploadCompany(string fileName, string method)
         {
             var statement = new StringBuilder();
             statement.Append($"using periodic commit 5000 " +
                 $"LOAD CSV WITH HEADERS FROM \"file:///{fileName}\" as line" +
-                " MERGE (c:Company{name: line['affiliation']})");
+                $" {method}" +
+                " (c:Company{name: line['affiliation']})");
             var count = await UploadDataByStatement(statement.ToString());
             return count;
         }
 
-        public async Task<int> UploadArea(string fileName)
+        public async Task<int> UploadArea(string fileName, string method)
         {
             var statement = new StringBuilder();
             statement.Append($"using periodic commit 5000 " +
                 $"LOAD CSV WITH HEADERS FROM \"file:///{fileName}\" as line" +
-                " MERGE (c:Area{name: line['name']})");
+                $" {method}" +
+                " (c:Area{name: line['name']})");
             var count = await UploadDataByStatement(statement.ToString());
             return count;
         }
 
-        public async Task<int> UploadAuthorPaper(string fileName)
+        public async Task<int> UploadAuthorPaper(string fileName, string method)
         {
             var statement = new StringBuilder();
             statement.Append($"using periodic commit 5000 " +
                 $"LOAD CSV WITH HEADERS FROM \"file:///{fileName}\" as line" +
-                " MATCH (p: Paper{index: toString(line['paper_index'])}), (a: Author{index: toString(line['author_index'])})" +
+                $" {method} " +
+                "(p: Paper{index: toString(line['paper_index'])}), (a: Author{index: toString(line['author_index'])})" +
                 " MERGE (a)-[:Write{affiliation: line['affiliation']}]->(p)");
             var count = await UploadDataByStatement(statement.ToString());
             return count;
         }
-        public async Task<int> UploadPaperReference(string fileName)
+        public async Task<int> UploadPaperReference(string fileName, string method)
         {
             var statement = new StringBuilder();
             statement.Append($"using periodic commit 5000 " +
                 $"LOAD CSV WITH HEADERS FROM \"file:///{fileName}\" as line" +
-                " MATCH (p1: Paper{index: line['paper_index']}), (p2: Paper{index: line['referenced_index']})" +
+                $" {method}" +
+                " (p1: Paper{index: line['paper_index']}), (p2: Paper{index: line['referenced_index']})" +
                 " MERGE (p1)-[:Reference]->(p2)");
             var count = await UploadDataByStatement(statement.ToString());
             return count;
         }
-        public async Task<int> UploadAuthorCooperate(string fileName)
+        public async Task<int> UploadAuthorCooperate(string fileName, string method)
         {
             var statement = new StringBuilder();
             statement.Append($"using periodic commit 5000 " +
                 $"LOAD CSV WITH HEADERS FROM \"file:///{fileName}\" as line" +
-                " MATCH (p1: Author{index: line['first_author']}), (p2: Author{index: line['second_author']})" +
+                $" {method}" +
+                " (p1: Author{index: line['first_author']}), (p2: Author{index: line['second_author']})" +
                 " MERGE (p1)-[:Cooperate{co_num: line['co_num']}]->(p2)");
             var count = await UploadDataByStatement(statement.ToString());
             return count;
         }
 
-        public async Task<int> UploadAuthorCompany(string fileName)
+        public async Task<int> UploadAuthorCompany(string fileName, string method)
         {
             var statement = new StringBuilder();
             statement.Append($"using periodic commit 5000 " +
                 $"LOAD CSV WITH HEADERS FROM \"file:///{fileName}\" as line" +
-                " MATCH (a:Author{index: line['author_index']}), (p: Company{name: line['affiliation']})" +
+                $" {method}" +
+                " (a:Author{index: line['author_index']}), (p: Company{name: line['affiliation']})" +
                 " MERGE (a)-[:Work]->(p)");
             var count = await UploadDataByStatement(statement.ToString());
             return count;
         }
 
-        public async Task<int> UploadPaperCompany(string fileName)
+        public async Task<int> UploadPaperCompany(string fileName, string method)
         {
             var statement = new StringBuilder();
             statement.Append($"using periodic commit 5000 " +
                 $"LOAD CSV WITH HEADERS FROM \"file:///{fileName}\" as line" +
-                " MATCH (a:Paper{index: line['paper_index']}), (p: Company{name: line['affiliation']})" +
+                $" {method}" +
+                " (a:Paper{index: line['paper_index']}), (p: Company{name: line['affiliation']})" +
                 " CREATE (a)-[:Belongs]->(p)");
             var count = await UploadDataByStatement(statement.ToString());
             return count;
         }
 
-        public async Task<int> UploadAuthorArea(string fileName)
+        public async Task<int> UploadAuthorArea(string fileName, string method)
         {
             var statement = new StringBuilder();
             statement.Append($"using periodic commit 5000 " +
                 $"LOAD CSV WITH HEADERS FROM \"file:///{fileName}\" as line" +
-                " MATCH (a:Author{index: line['author_index']}), (p: Area{name: line['interest']})" +
+                $" {method}" +
+                " (a:Author{index: line['author_index']}), (p: Area{name: line['interest']})" +
                 " CREATE (a)-[:Search]->(p)");
             var count = await UploadDataByStatement(statement.ToString());
             return count;

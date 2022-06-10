@@ -9,6 +9,6 @@
         }
         Task<UploadReply> uploadFile(IFormFile file);
 
-        Task<object> MergeTable(string fileName, string tableName);
+        Task<object> MergeTable(string fileName, string tableName, string method);
     }
 }

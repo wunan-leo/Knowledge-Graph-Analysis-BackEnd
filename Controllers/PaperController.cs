@@ -13,6 +13,21 @@ namespace Knowledge_Graph_Analysis_BackEnd.Controllers
         {
             this.paperRepository = paperRepository;
         }
+        [HttpGet]
+        [Route("/api/paper")]
+        public async Task<ActionResult> GetPaperByIndex(string paperIndex)
+        {
+            try
+            {
+                return Ok(await paperRepository.GetPaperByIndex(paperIndex));
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    "Error retrieving data from the neo4j database.");
+            }
+        }
+
 
         [HttpGet]
         [Route("/api/availablePapers")]
