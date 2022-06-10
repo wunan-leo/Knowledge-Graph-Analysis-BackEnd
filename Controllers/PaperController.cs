@@ -1,6 +1,11 @@
-﻿using Knowledge_Graph_Analysis_BackEnd.IRepositories;
+﻿using Knowledge_Graph_Analysis_BackEnd.Dtos;
+using Knowledge_Graph_Analysis_BackEnd.Helper;
+using Knowledge_Graph_Analysis_BackEnd.IRepositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using StackExchange.Redis;
+using System.Text;
 
 namespace Knowledge_Graph_Analysis_BackEnd.Controllers
 {
@@ -9,9 +14,11 @@ namespace Knowledge_Graph_Analysis_BackEnd.Controllers
     public class PaperController : ControllerBase
     {
         private readonly IPaperRepository paperRepository;
-        public PaperController(IPaperRepository paperRepository)
+        private readonly IDatabase _redis;
+        public PaperController(IPaperRepository paperRepository, RedisHelper client)
         {
             this.paperRepository = paperRepository;
+            this._redis = client.GetDatabase(1);
         }
         [HttpGet]
         [Route("/api/paper")]
@@ -80,7 +87,20 @@ namespace Knowledge_Graph_Analysis_BackEnd.Controllers
         {
             try
             {
-                return Ok(await paperRepository.GetImportantVenue(area, limit));
+                var arguement = new StringBuilder();
+                arguement.Append($"area:{area}, limit:{limit}");
+                var result = await _redis.StringGetAsync(arguement.ToString());
+                if (result.IsNullOrEmpty)
+                {
+                    var value = await paperRepository.GetImportantVenue(area, limit);
+                    await _redis.StringSetAsync(arguement.ToString(), JsonConvert.SerializeObject(value));
+                    _redis.KeyExpire(arguement.ToString(), TimeSpan.FromMinutes(15));
+                    return Ok(value);
+                }
+                else
+                {
+                    return Ok(JsonConvert.DeserializeObject<ImportantVenue>(result));
+                }
             }
             catch (Exception)
             {

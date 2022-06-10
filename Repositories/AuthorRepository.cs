@@ -92,7 +92,9 @@ namespace Knowledge_Graph_Analysis_BackEnd.Repositories
         public async Task<List<Author>> GetCooperateAuthors(string authorIndex)
         {
             var statement = new StringBuilder();
-            statement.Append($"MATCH (a:Author)-[r:Cooperate]->(b) where a.index = \"{authorIndex}\" RETURN b as author");
+            statement.Append($"MATCH (a:Author)-[r:Cooperate]->(b:Author) " +
+                $"where a.index = \"{authorIndex}\" or b.index = \"{authorIndex}\" " +
+                $"RETURN b as author");
             return await GetAuthorsByStatement(statement.ToString());
         }
 

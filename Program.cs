@@ -1,4 +1,5 @@
 
+using Knowledge_Graph_Analysis_BackEnd.Helper;
 using Knowledge_Graph_Analysis_BackEnd.IRepositories;
 using Knowledge_Graph_Analysis_BackEnd.Models;
 using Knowledge_Graph_Analysis_BackEnd.Repositories;
@@ -27,6 +28,12 @@ builder.Services.AddDbContext<KnowledgeGraphContext>(options =>
 builder.Services.AddSingleton(GraphDatabase.Driver(builder.Configuration["KnowledgeGraph:Neo4jConnectionSettings:Server"],
     AuthTokens.Basic(builder.Configuration["KnowledgeGraph:Neo4jConnectionSettings:UserName"],
     builder.Configuration["KnowledgeGraph:Neo4jConnectionSettings:Password"])));
+
+//add redis helper.
+var _connectionString = builder.Configuration["Redis:Connection"];
+var _instanceName = builder.Configuration["Redis:InstanceName"];
+var defaultDB = int.Parse(builder.Configuration["Redis:DefaultDB"]);
+builder.Services.AddSingleton(new RedisHelper(_connectionString, _instanceName, defaultDB));
 
 
 // add Repository DI.

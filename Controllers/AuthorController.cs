@@ -1,8 +1,13 @@
-﻿using Knowledge_Graph_Analysis_BackEnd.IRepositories;
+﻿using Knowledge_Graph_Analysis_BackEnd.Dtos;
+using Knowledge_Graph_Analysis_BackEnd.Helper;
+using Knowledge_Graph_Analysis_BackEnd.IRepositories;
 using Knowledge_Graph_Analysis_BackEnd.Services;
 using Knowledge_Graph_Analysis_BackEnd.Services.Implements;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using StackExchange.Redis;
+using System.Text;
 
 namespace Knowledge_Graph_Analysis_BackEnd.Controllers
 {
@@ -12,11 +17,13 @@ namespace Knowledge_Graph_Analysis_BackEnd.Controllers
     {
         private readonly IAuthorRepository authorRepository;
         private readonly IAuthorService authorService;
+        private readonly IDatabase _redis;
 
-        public AuthorController(IAuthorRepository authorRepository)
+        public AuthorController(IAuthorRepository authorRepository, RedisHelper client)
         {
             this.authorRepository = authorRepository;
             this.authorService = new AuthorServiceImpl(this.authorRepository);
+            _redis = client.GetDatabase();
         }
 
 
@@ -101,7 +108,20 @@ namespace Knowledge_Graph_Analysis_BackEnd.Controllers
         {
             try
             {
-                return Ok(await authorService.GetAuthorsBriefInfoByName(authorName));
+                var arguement = new StringBuilder();
+                arguement.Append($"authorName:{authorName}");
+                var result = await _redis.StringGetAsync(arguement.ToString());
+                if (result.IsNullOrEmpty)
+                {
+                    var value = await authorService.GetAuthorsBriefInfoByName(authorName);
+                    await _redis.StringSetAsync(arguement.ToString(), JsonConvert.SerializeObject(value));
+                    _redis.KeyExpire(arguement.ToString(), TimeSpan.FromMinutes(15));
+                    return Ok(value);
+                }
+                else
+                {
+                    return Ok(JsonConvert.DeserializeObject<BriefAuthor>(result));
+                }
             }
             catch (Exception)
             {
@@ -161,7 +181,21 @@ namespace Knowledge_Graph_Analysis_BackEnd.Controllers
         {
             try
             {
-                return Ok(await authorService.GetImportantAuthorAndDepartmentByArea(area, indicator, authorLimit, departmentLimit));
+                var arguement = new StringBuilder();
+                arguement.Append($"area:{area}, indicator:{indicator}, authorLimit:{authorLimit.ToString()}, departmentLimit:{departmentLimit.ToString()}");
+                var result = await _redis.StringGetAsync(arguement.ToString());
+                if (result.IsNullOrEmpty)
+                {
+                    var value = await authorService.GetImportantAuthorAndDepartmentByArea(area, indicator, authorLimit, departmentLimit);
+                    await _redis.StringSetAsync(arguement.ToString(), JsonConvert.SerializeObject(value));
+                    _redis.KeyExpire(arguement.ToString(), TimeSpan.FromMinutes(15));
+                    return Ok(value);
+                }
+                else
+                {
+
+                    return Ok(JsonConvert.DeserializeObject<ImportantAuthorsDept>(result));
+                }          
             }
             catch (Exception)
             {
