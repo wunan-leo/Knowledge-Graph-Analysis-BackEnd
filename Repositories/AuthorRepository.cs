@@ -93,8 +93,10 @@ namespace Knowledge_Graph_Analysis_BackEnd.Repositories
         {
             var statement = new StringBuilder();
             statement.Append($"MATCH (a:Author)-[r:Cooperate]->(b:Author) " +
-                $"where a.index = \"{authorIndex}\" or b.index = \"{authorIndex}\" " +
-                $"RETURN b as author");
+                $"where a.index = \"{authorIndex}\" return b as author " +
+                $"union " +
+                $"MATCH (a:Author)-[r:Cooperate]->(b:Author) " +
+                $"where b.index = \"{authorIndex}\" return a as author");
             return await GetAuthorsByStatement(statement.ToString());
         }
 
