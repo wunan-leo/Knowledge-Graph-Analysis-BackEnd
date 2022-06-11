@@ -99,7 +99,7 @@ namespace Knowledge_Graph_Analysis_BackEnd.Controllers
                 }
                 else
                 {
-                    return Ok(JsonConvert.DeserializeObject<ImportantVenue>(result));
+                    return Ok(JsonConvert.DeserializeObject<List<ImportantVenue>>(result));
                 }
             }
             catch (Exception)
